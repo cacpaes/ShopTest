@@ -1,8 +1,9 @@
-﻿
+﻿using ShopTest.Entities;
+using ShopTest.Interfacies;
 
 namespace ShopTest.Repositories
 {
-    public class RepositoryStock
+    public class RepositoryStock : RepositoryGeneric<Stock>, IRepositoryStock
     {
     }
 }
