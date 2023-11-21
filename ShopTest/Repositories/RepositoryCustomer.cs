@@ -1,8 +1,9 @@
 ﻿using ShopTest.Entities;
+using ShopTest.Interfacies;
 
 namespace ShopTest.Repositories
 {
-    public class RepositoryCustomer : RepositoryGeneric<Customers>
+    public class RepositoryCustomer : RepositoryGeneric<Customers>, IRepositoryCustomer
     {
         RepositoryTransaction repositoryTransaction = new();
         RepositoryStock repositoryStock = new();

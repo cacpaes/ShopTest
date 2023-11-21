@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace ShopTest.Interfacies
 {
-    public interface IRepositoryEmployee : IRepositoryGeneric<Employees>
+    public interface IRepositoryCustomer : IRepositoryGeneric<Customers>
     {
+        Task<string> Purchase(List<Sells> sells, Transactions transaction);
     }
 }

@@ -1,112 +1,95 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using ShopTest.Entities;
 using ShopTest.Interfacies;
 using ShopTest.Repositories;
 
-namespace ShopTest.ConsoleApp
+class Program
 {
-    class Program
+    private static IRepositoryProduct _productRepository;
+
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
+        var serviceProvider = new ServiceCollection()
+            .AddTransient<IRepositoryProduct, RepositoryProduct>()
+            .BuildServiceProvider();
+
+        _productRepository = serviceProvider.GetService<IRepositoryProduct>();
+
+        Console.WriteLine("Bem-vindo à Loja!");
+
+        while (true)
         {
-            Console.WriteLine("Bem-vindo à loja!");
+            Console.WriteLine("\nEscolha uma opção:");
+            Console.WriteLine("1. Adicionar novo produto");
+            Console.WriteLine("2. Ver lista de produtos");
+            Console.WriteLine("0. Sair");
 
-            RepositoryCustomer repositoryCustomer = new ();
-            RepositoryProduct repositoryProduct = new ();
-            RepositoryTransaction repositoryTransaction = new ();
-            RepositoryStock repositoryStock = new ();
-            bool showMenu = true;
-            while (showMenu)
+            var opcao = Console.ReadLine();
+
+            switch (opcao)
             {
-                Console.WriteLine("Escolha uma opção:");
-                Console.WriteLine("1 - Comprar Produto");
-                Console.WriteLine("2 - Listar Produtos");
-                Console.WriteLine("3 - Sair");
-
-                char key = Console.ReadKey().KeyChar;
-                Console.WriteLine();
-
-                switch (key)
-                {
-                    case '1':
-                        await ComprarProduto(repositoryCustomer, repositoryProduct, repositoryTransaction, repositoryStock);
-                        break;
-                    case '2':
-                        await ListarProdutos(repositoryProduct);
-                        break;
-                    case '3':
-                        showMenu = false;
-                        break;
-                    default:
-                        Console.WriteLine("Opção inválida!");
-                        break;
-                }
+                case "1":
+                    await AdicionarNovoProduto();
+                    break;
+                case "2":
+                    await VerListaProdutos();
+                    break;
+                case "0":
+                    Console.WriteLine("Saindo...");
+                    return;
+                default:
+                    Console.WriteLine("Opção inválida!");
+                    break;
             }
         }
+    }
 
-        static async Task ComprarProduto(RepositoryCustomer repositoryCustomer, RepositoryProduct repositoryProduct, RepositoryTransaction repositoryTransaction, RepositoryStock repositoryStock)
+    static async Task AdicionarNovoProduto()
+    {
+        try
         {
-            try
+            Console.WriteLine("\n--- Novo Produto ---");
+            Console.Write("Nome do produto: ");
+            var nome = Console.ReadLine();
+            // ... outras informações do produto
+
+            var novoProduto = new Product
             {
-                // Aqui você pode pedir os detalhes do produto e do cliente ao usuário
-                Console.WriteLine("Digite o ID do Cliente:");
-                int customerId = int.Parse(Console.ReadLine());
+                ProductName = nome,
+                // ... preencha outras informações do produto
+            };
 
-                Console.WriteLine("Digite o ID do Produto:");
-                int productId = int.Parse(Console.ReadLine());
+            await _productRepository.Create(novoProduto);
+            Console.WriteLine("Novo produto adicionado com sucesso!");
 
-                Console.WriteLine("Digite a quantidade:");
-                int quantity = int.Parse(Console.ReadLine());
-
-                // Criando a transação
-                var transaction = new Transactions
-                {
-                    PersonId = customerId,
-                    TotalAmount = 0, // Defina o valor total com base no produto
-                    TransactionType = "Compra",
-                    TransactionDate = DateTime.Now,
-                    CreatedDate = DateTime.Now
-                };
-
-                // Buscando o cliente e o produto no repositório
-                var customer = await repositoryCustomer.GetById(customerId);
-                var product = await repositoryProduct.GetById(productId);
-
-                if (customer != null && product != null)
-                {
-                    var sell = new Sells
-                    {
-                        TransactionId = transaction.TransactionId,
-                        ProductId = productId,
-                        Quantity = quantity,
-                        TotalAmount = product.SaleValue * quantity, // Calcula o valor total da compra
-                        SellDate = DateTime.Now
-                    };
-
-                    var result = await repositoryCustomer.Purchase(new List<Sells> { sell }, transaction);
-                    Console.WriteLine(result);
-                }
-                else
-                {
-                    Console.WriteLine("Cliente ou Produto não encontrado!");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erro ao realizar a compra: " + ex.Message);
-            }
+            await VerListaProdutos(); // Mostra a lista atualizada após adição do novo produto
         }
-
-        static async Task ListarProdutos(RepositoryProduct repositoryProduct)
+        catch (Exception ex)
         {
-            var products = await repositoryProduct.List();
+            Console.WriteLine("Erro ao adicionar novo produto: " + ex.Message);
+        }
+    }
 
-            Console.WriteLine("Lista de Produtos:");
-            foreach (var product in products)
+
+    static async Task VerListaProdutos()
+    {
+        Console.WriteLine("\n--- Lista de Produtos ---");
+        var produtos = await _productRepository.List();
+
+        if (produtos.Count == 0)
+        {
+            Console.WriteLine("Nenhum produto cadastrado ainda.");
+        }
+        else
+        {
+            Console.WriteLine("Produtos disponíveis:");
+            foreach (var produto in produtos)
             {
-                Console.WriteLine($"ID: {product.ProductId}, Nome: {product.ProductName}, Valor: {product.SaleValue}");
+                Console.WriteLine($"- {produto.ProductName}");
+                // Mostrar outras informações relevantes do produto, se necessário
             }
         }
     }

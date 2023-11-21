@@ -1,14 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-
 
 namespace ShopTest.Entities
 {
     [Table("Product")]
     public class Product
     {
-        // Additional attributes specific to Product
-
         [Key]
         public int ProductId { get; set; }
         public string? ProductName { get; set; }
@@ -22,5 +20,12 @@ namespace ShopTest.Entities
         public decimal SaleVatRate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
+        public Product()
+        {
+            // Inicializa os campos de data com valores padrão
+            CreatedDate = DateTime.Now; 
+            UpdatedDate = null; 
+        }
     }
 }

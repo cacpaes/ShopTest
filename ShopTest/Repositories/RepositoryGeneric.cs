@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ShopTest.Configurations;
+using ShopTest.Interfacies;
 
 
 namespace ShopTest.Repositories
 {
-    public class RepositoryGeneric<T> where T : class
+    public class RepositoryGeneric<T> : IRepositoryGeneric<T> where T : class
     {
 
         private readonly DbContextOptions<ContextBase> _optionBuilder;

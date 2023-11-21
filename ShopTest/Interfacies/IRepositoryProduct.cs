@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ShopTest.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShopTest.Interfacies
 {
-    internal interface IRepositoryProduct
+    public interface IRepositoryProduct : IRepositoryGeneric<Product>
     {
     }
 }
